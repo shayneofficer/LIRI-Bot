@@ -19,21 +19,19 @@ inquirer.prompt([
     // Switch Statement Version: 
     switch (ans.commandChoice) {
         case "concert-this":
-            console.log("concert");
             getConcerts();
             break;
         case "spotify-this-song":
-            console.log("song");
+            getSong();
             break;
         case "movie-this":
-            console.log("movie");
+
             break;
         case "do-what-it-says":
-            console.log("who knows?");
+
             break;
 
         default:
-            console.log("bad input");
             break;
     }
 })
@@ -66,5 +64,34 @@ function getConcerts() {
                 console.log(`${response.data[i].venue.name} || ${response.data[i].venue.city} || ${concertDate}`);
             }
         });
+    });
+}
+
+function getSong() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What song?",
+            name: "song"
+        }
+    ]).then(function (res) {
+        spotify.search({
+            type: "track",
+            query: res.song
+        }).then(function (response) {
+            var track = response.tracks.items[0];
+            var bandName = "";
+            for (var i = 0; i < track.artists.length - 1; i++) {
+                bandName += `${track.artists[i].name}, `;
+            }
+            bandName += track.artists[track.artists.length - 1].name;
+            console.log(`Artist(s): ${bandName}\nSong Title: ${track.name}\nAlbum Title: ${track.album.name}\nSpotify Link: ${track.external_urls.spotify}`);
+        }).catch(function (err) {
+            console.log(`Sorry, I couldn't find that song... Here's "The Sign" by Ace of Base instead.`);
+            console.log(`Artist: Ace of Base\nSong Title: The Sign\nAlbum Title: The Sign (US Album) [Remastered]\nSpotify Link: https://open.spotify.com/track/0hrBpAOgrt8RXigk83LLNE`);
+        })
+    }).catch(function (err) {
+        console.log(`You didn't enter a song title... Here's "The Sign" by Ace of Base.`);
+        console.log(`Artist: Ace of Base\nSong Title: The Sign\nAlbum Title: The Sign (US Album) [Remastered]\nSpotify Link: https://open.spotify.com/track/0hrBpAOgrt8RXigk83LLNE`);
     });
 }
